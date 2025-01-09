@@ -225,6 +225,7 @@ const UpSellProduct: React.FC = () => {
     }
     console.log("appended", crossSellProducts);
   };
+  
   const fetchAllAddedProducts = async () => {
     try {
       const response = await axios.get(
@@ -726,7 +727,7 @@ const UpSellProduct: React.FC = () => {
       {/* Modals */}
     </div>
   ); 
-  
+
 };
 
 export default UpSellProduct;
