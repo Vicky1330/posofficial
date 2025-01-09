@@ -42,11 +42,11 @@ const UpSellProduct: React.FC = () => {
   // const [crossSellOptions, setCrossSellOptions] = useState([]);
 
   const {
-    register,
+    // register,
     handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
+    // setValue,
+    // watch,
+    // formState: { errors },
   } = useForm<FormData>({});
 
   const handleRemoveProducts = async () => {
@@ -508,17 +508,17 @@ const UpSellProduct: React.FC = () => {
                                 <tbody>
                                   {addedCrossSellProducts.map(
                                     (product: any, index) => {
-                                    const defaultValue =
-                                      product.UpsellByProductId
-                                        ? JSON.stringify({
-                                            id: product.UpsellByProductId,
-                                            typeId: upsellProducts.find(
-                                              (option) =>
-                                                option.Id ===
-                                                product.UpsellByProductId
-                                            )?.ProductTypeId,
-                                          })
-                                        : "";
+                                    // const defaultValue =
+                                    //   product.UpsellByProductId
+                                    //     ? JSON.stringify({
+                                    //         id: product.UpsellByProductId,
+                                    //         typeId: upsellProducts.find(
+                                    //           (option) =>
+                                    //             option.Id ===
+                                    //             product.UpsellByProductId
+                                    //         )?.ProductTypeId,
+                                    //       })
+                                    //     : "";
                                       return (
                                         <tr key={`upsell-${product.Id}`}>
                                           <td className="relative p-4">
@@ -546,7 +546,7 @@ const UpSellProduct: React.FC = () => {
                                             className="d-flex align-items-center"
                                             style={{ width: "300px" }}
                                           >
-                                            <select
+                                            {/* <select
                                               className={`px-2 form-control upsellByProductListDropdown mr-2`}
                                               {...register(`upSellProduct_${product.Id}`, {
                                                 required: true,
@@ -574,7 +574,7 @@ const UpSellProduct: React.FC = () => {
                                                   {option.Name}
                                                 </option>
                                               ))}
-                                            </select>
+                                            </select> */}
 
                                             <div className="dropdown">
                                               <button
