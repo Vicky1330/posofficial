@@ -51,7 +51,7 @@ const RestaurantLogin: React.FC = () => {
 
   const CheckLogin = async (): Promise<void> => {
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}/api/restaurant/login`;
+      const apiUrl = `${import.meta.env.VITE_API_URL}api/restaurant/login`;
       const response = await axios.post(
         apiUrl,
         {
