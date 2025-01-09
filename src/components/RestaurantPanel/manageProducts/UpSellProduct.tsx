@@ -725,7 +725,8 @@ const UpSellProduct: React.FC = () => {
 
       {/* Modals */}
     </div>
-  );
+  ); 
+  
 };
 
 export default UpSellProduct;
