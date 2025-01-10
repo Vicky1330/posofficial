@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import RestaurantLogin from './pages/RestaurantLogin'
 import ForgotPassword from './pages/ForgotPassword'
