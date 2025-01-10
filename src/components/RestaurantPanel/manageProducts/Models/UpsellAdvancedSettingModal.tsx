@@ -1,35 +1,138 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import { Bounce, toast } from "react-toastify";
+import axios from "axios";
 
 interface UpsellAdvancedSettingModalProps {
   show: boolean;
   onClose: () => void;
-  // onSubmit: (settingValue: string) => void;
+  productId: number;
 }
 
 const UpsellAdvancedSettingModal: React.FC<UpsellAdvancedSettingModalProps> = ({
   show,
   onClose,
-  // onSubmit,
+  productId,
 }) => {
-  const [selectedSetting, setSelectedSetting] = useState<string | null>(null);
-  const [visibilityCount, setVisibilityCount] = useState<string>("0");
+  const [selectedSetting, setSelectedSetting] = useState<string>("0"); 
+  const [visibilityCount, setVisibilityCount] = useState<number>(1); 
+  const UserToken_Global = localStorage.getItem("authToken");
 
-  const handleRadioChange = (value: string) => {
-    setSelectedSetting(value); 
+  const handleRadioChange = (value: number) => {
+    setVisibilityCount(value);
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setVisibilityCount(e.target.value); 
+    setSelectedSetting(e.target.value);
   };
 
-  const handleSubmit = () => {
-    // if (selectedSetting) {
-    //   onSubmit(selectedSetting);
-    // }
-    setSelectedSetting(null); 
-    onClose();
+  const fetchData = async () => {
+    if (!productId) {
+      console.warn("Product ID is not provided.");
+      return;
+    }
+
+    try {
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL
+      }api/get/upsell/by/product/visibility/data?upsellByProductRowId=${productId}&restaurantLoginId=0`;
+
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${UserToken_Global}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200 && response.data.status === 1) {
+        const { VisibilityCount_ForDecline, VisibilityStatus } =
+          response.data.data.upsell_visibility;
+
+        setSelectedSetting(VisibilityCount_ForDecline || "0");
+        setVisibilityCount(VisibilityStatus || 1);
+      } else {
+        toast.error(response.data.message || "Failed to fetch data.", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+          transition: Bounce,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Error fetching visibility settings.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+        transition: Bounce,
+      });
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (show && productId) {
+      fetchData();
+    }
+  }, [show, productId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (selectedSetting === "0") {
+      toast.error("Please select a visibility count.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+        transition: Bounce,
+      });
+      return;
+    }
+
+    const payload = {
+      VisibilityCount_ForDecline: selectedSetting,
+      VisibilityStatus: visibilityCount,
+      Id: productId,
+      RestaurantLoginId: 0,
+    };
+
+    const apiUrl = `${
+      import.meta.env.VITE_API_URL
+    }api/restaurant/add/update/upsell/visibility/data`;
+
+    try {
+      const response = await axios.post(apiUrl, payload, {
+        headers: {
+          Authorization: `Bearer ${UserToken_Global}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200 && response.data.status === 1) {
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+          transition: Bounce,
+        });
+        onClose();
+      } else {
+        toast.error(response.data.message || "Failed to update settings.", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+          transition: Bounce,
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      toast.error("Error updating visibility settings.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+        transition: Bounce,
+      });
+    }
   };
 
   return (
@@ -40,13 +143,10 @@ const UpsellAdvancedSettingModal: React.FC<UpsellAdvancedSettingModalProps> = ({
       centered
       dialogClassName="z-50 relative"
       contentClassName="p-0 bg-white rounded-md"
-      className=" advance-btn-modal"
+      className="advance-btn-modal"
     >
-      {/* Modal Backdrop */}
-      {/* <div className="fixed inset-0 bg-black opacity-5 -z-10"></div> */}
-
       <Modal.Body className="pb-0">
-        <form>
+        <form onSubmit={handleSubmit}>
           {/* Display Before/After */}
           <div className="row mb-3">
             <label htmlFor="visibilityStatus" className="ps-0">
@@ -58,9 +158,9 @@ const UpsellAdvancedSettingModal: React.FC<UpsellAdvancedSettingModalProps> = ({
                 type="radio"
                 name="visibilityStatus"
                 id="visibilityStatus1"
-                value="1"
-                checked={selectedSetting === "1"}
-                onChange={() => handleRadioChange("1")}
+                value={1}
+                checked={visibilityCount === 1}
+                onChange={() => handleRadioChange(1)}
               />
               <label className="form-check-label" htmlFor="visibilityStatus1">
                 Before
@@ -72,9 +172,9 @@ const UpsellAdvancedSettingModal: React.FC<UpsellAdvancedSettingModalProps> = ({
                 type="radio"
                 name="visibilityStatus"
                 id="visibilityStatus2"
-                value="2"
-                checked={selectedSetting === "2"}
-                onChange={() => handleRadioChange("2")}
+                value={2}
+                checked={visibilityCount === 2}
+                onChange={() => handleRadioChange(2)}
               />
               <label className="form-check-label" htmlFor="visibilityStatus2">
                 After
@@ -84,26 +184,26 @@ const UpsellAdvancedSettingModal: React.FC<UpsellAdvancedSettingModalProps> = ({
 
           {/* Don't show if customer declines the offer */}
           <div className="form-group mb-3">
-            <label htmlFor="visibilityCount">
+            <label htmlFor="selectedSetting">
               Don't show if the customer declines the offer
             </label>
             <select
-              id="visibilityCount"
+              id="selectedSetting"
               className="form-control"
-              value={visibilityCount}
+              value={selectedSetting}
               onChange={handleSelectChange}
             >
               <option value="0">Select</option>
               <option value="1">One Time</option>
-              <option value="2">Two Time</option>
-              <option value="3">Three Time</option>
+              <option value="2">Two Times</option>
+              <option value="3">Three Times</option>
             </select>
           </div>
         </form>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button className="pro-submit bg-[#1b5703]"  onClick={handleSubmit}>
+        <Button className="pro-submit bg-[#1b5703]" onClick={handleSubmit}>
           Submit
         </Button>
         <Button className="pro-cancel" variant="secondary" onClick={onClose}>

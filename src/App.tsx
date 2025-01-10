@@ -45,11 +45,11 @@ import OrderPlaced from './components/MobileView/OrderPlaced';
 
 function App() {
 
-  useEffect(() => {
-    if (window.location.pathname === '/') {
-      window.location.replace('/restaurant/login');
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (window.location.pathname === '/') {
+  //     window.location.replace('/restaurant/login');
+  //   }
+  // }, []);
 
   return (
     <BrowserRouter>

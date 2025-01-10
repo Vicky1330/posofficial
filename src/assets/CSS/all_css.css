@@ -5498,3 +5498,8 @@ th, td {
 .align-icons-upload {
     margin-left: 10px;
 }
+
+
+.dropdown .dropdown-toggle:after{
+    display: none !important;
+}

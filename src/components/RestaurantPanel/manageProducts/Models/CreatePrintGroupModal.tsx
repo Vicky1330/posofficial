@@ -33,13 +33,13 @@ const CreatePrintGroupModal: React.FC<CreatePrintGroupModalProps> = ({ onClose,
       <div className="modal-dialog cstm_modal_dialog">
         <div className="modal-content plus_modal_cont">
           <div className="modal-header plus_modal_head flex items-center" style={{ display: 'block', paddingBottom: 0 }}>
-            <h4 className="translate-x-7 modal-title plus_head_popup">Add Print Group</h4>
+            <h4 className=" modal-title plus_head_popup">Add Print Group</h4>
           </div>
           <div className="modal-body new_modal_work">
             <div className="form-group plus_from_group">
               <input
                 type="text"
-                className="p-2 plus_imput_feild"
+                className="p-2 plus_imput_feild !w-full"
                 placeholder="Enter Print Group"
                 value={groupName}
                 onChange={(e) => {
@@ -51,10 +51,10 @@ const CreatePrintGroupModal: React.FC<CreatePrintGroupModalProps> = ({ onClose,
             </div>
 
             <div className="modal-bottom plus_modal_bottom">
-              <button type="button" className="cstm_model_plusbtn_1 btn btn-danger" onClick={onClose}>
+              <button type="button" className="pro-cancel" onClick={onClose}>
                 Cancel
               </button>
-              <button type="button" className="cstm_model_plusbtn_2 btn btn-danger"
+              <button type="button" className="pro-submit"
                 onClick={() => onCreateMainDepartment(editModal ? 2 : 1, groupName)}
               >
                 {editModal ? "Update" : "Add"}

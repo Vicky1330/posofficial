@@ -2,11 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import "../../assets/CSS/sidebar_backdrop.css";
+import axios from "axios";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onTitleChange: (title: string) => void;
+}
+interface RestaurantProfile {
+  Id: 0;
+  LoginId: 0;
+  TradingName: string;
+  Description: string;
+  Email: string;
+  AlternateEmail: string;
+  PhoneNumber_Only: string;
+  Address: string;
+  PostCode: string;
+  Latitude: string | null;
+  Longitude: string | null;
+  IconImagePath: string | null;
+  LanguageId: number | null;
+  IconImage?: File | null;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -18,6 +35,44 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isActive, setIsActive] = useState("Dashboard");
   const navigate = useNavigate();
   const location = useLocation();
+  const [profile, setProfile] = useState<RestaurantProfile>({
+    Id: 0,
+    LoginId: 0,
+    TradingName: "",
+    Description: "",
+    Email: "",
+    AlternateEmail: "",
+    PhoneNumber_Only: "",
+    Address: "",
+    PostCode: "",
+    Latitude: null,
+    Longitude: null,
+    IconImagePath: null,
+    LanguageId: 1,
+  });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const apiUrl = `${
+          import.meta.env.VITE_API_URL
+        }/api/get/restaurant/profile?restaurantLoginId=${0}`;
+
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200 && response.data.status === 1) {
+          setProfile(response.data.data.restaurantDetail);
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
   useEffect(() => {
     const pathTitleMap: Record<string, string> = {
       "/Restaurant/Dashboard": "Dashboard",
@@ -122,7 +177,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             <div className="text-center navbar-brand-wrapper align-items-center justify-content-start">
               <div className="logo_nvbar">
-                <a className="navbar-brand brand-logo" href="#">
+                <Link
+                  className="navbar-brand brand-logo"
+                  to="/Restaurant/Dashboard"
+                >
                   <img
                     src="../Content/BrandImages/new-logo.jpg"
                     alt="Brand Logo"
@@ -130,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     className="mr-4"
                     style={{ width: "100%", maxWidth: "128px" }}
                   />
-                </a>
+                </Link>
               </div>
             </div>
             <ul className={`nav ${isOpen ? "pb-5" : "pb-1"}`}>
@@ -142,7 +200,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 } hover:active hover:hover-open`}
               >
                 <Link
-                  className="nav-link px-0"
+                  className="nav-link px-0 "
                   to="/Restaurant/ManageProfile"
                   onClick={() => handleItemClick("Profile")}
                 >
@@ -695,10 +753,10 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <Link
                   to="/Restaurant/ManageReasons"
-                  className="nav-link px-0"
+                  className="nav-link px-0 "
                   onClick={() => handleItemClick("Manage Reason")}
                 >
-                  <div className="nav-box sub_menu_peripherals">
+                  <div className="nav-box sub_menu_peripherals !justify-center">
                     <svg
                       version="1.0"
                       xmlns="http://www.w3.org/2000/svg"
@@ -757,9 +815,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                       id="lblRestaurantAdmin_LoggedIn_RestaurantLayout"
                       style={{ marginLeft: "0px" }}
                     >
-                      Manpreet
-                      <br />
-                      (Crust Pizza &amp; More)
+                      {profile.TradingName}
+                      <br />({profile.Description})
                     </h6>
                   </div>
                 </a>
