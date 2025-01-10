@@ -200,7 +200,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 } hover:active hover:hover-open`}
               >
                 <Link
-                  className="nav-link px-0 "
+                  className="nav-link px-0"
                   to="/Restaurant/ManageProfile"
                   onClick={() => handleItemClick("Profile")}
                 >
@@ -753,7 +753,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <Link
                   to="/Restaurant/ManageReasons"
-                  className="nav-link px-0 "
+                  className="nav-link px-0"
                   onClick={() => handleItemClick("Manage Reason")}
                 >
                   <div className="nav-box sub_menu_peripherals !justify-center">

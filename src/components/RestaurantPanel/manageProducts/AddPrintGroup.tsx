@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import CreatePrintGroupModal from "";
 import { Link } from "react-router-dom";
 import CreatePrintGroupModal from "./Models/CreatePrintGroupModal";
 import axios from "axios";
@@ -393,18 +392,18 @@ const AddPrintGroup: React.FC = () => {
               </div>
             </div>
 
-            <div className="main_dept_below ">
+            <div className="main_dept_below">
               <div
                 id="dv_PrintGroupsList_Section_ManagePrintGroups"
-                className="row ui-sortable "
+                className="row ui-sortable"
               >
                 {printGroups.map((group) => (
                   <div
                     key={group.id}
-                    className="col-sm-2 printGroupsListClass "
+                    className="col-sm-2 printGroupsListClass"
                     data-pgid={group.id}
                   >
-                    <div className="wrap_chekox-remove">
+                    <div className="wrap_chekox-remove pt-2">
                       <span>
                         <a
                           href="#"

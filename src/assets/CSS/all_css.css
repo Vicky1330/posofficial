@@ -5483,7 +5483,6 @@ th, td {
    /* margin-left: 850px;*/
 }
 
-
 .errorsClasstip {
     color: red;
     font-size: 0.9rem;
@@ -5499,7 +5498,7 @@ th, td {
     margin-left: 10px;
 }
 
-
 .dropdown .dropdown-toggle:after{
     display: none !important;
 }
+

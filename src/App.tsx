@@ -1,4 +1,4 @@
-// import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import RestaurantLogin from './pages/RestaurantLogin'
 import ForgotPassword from './pages/ForgotPassword'
@@ -45,11 +45,11 @@ import OrderPlaced from './components/MobileView/OrderPlaced';
 
 function App() {
 
-  // useEffect(() => {
-  //   if (window.location.pathname === '/') {
-  //     window.location.replace('/restaurant/login');
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (window.location.pathname === '/') {
+      window.location.replace('/restaurant/login');
+    }
+  }, []);
 
   return (
     <BrowserRouter>

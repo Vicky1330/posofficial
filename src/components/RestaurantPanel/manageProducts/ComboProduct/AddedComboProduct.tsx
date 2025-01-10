@@ -2,13 +2,11 @@ import React, { useEffect, useState } from "react";
 import ComboOptionDepartment from "./ComboOptionDepartment";
 import ComboOptionProduct from "./ComboOptionProduct";
 import { useForm } from "react-hook-form";
-// import { SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useLocation } from "react-router-dom";
 import { Bounce, toast } from "react-toastify";
 import Skeleton from "react-loading-skeleton";
-// import Product from "../../ManageReports/Product";
 
 interface SubDepartment {
   Id: number;
@@ -105,9 +103,17 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
 }) => {
   const [addedComboData, setAddedComboData] = useState<ComboOption[]>([]);
   const [optionOpen, setOptionOpen] = useState<number>(0);
-  // const [productId, setProductId] = useState(null);
   const [importLoading, setImportLoading] = useState<boolean>(false);
+  const [comboLoading, setComboLoading] = useState<boolean>(false);
   const [defaultProducts, setDefaultProducts] = useState<IncludedItem[]>([]);
+  const UserToken_Global = localStorage.getItem("authToken");
+  const [subDepartments, setSubDepartments] = useState<SubDepartment[]>([]);
+  // const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+  const [comboProductId, setComboProductId] = useState<string | number>("");
+  const [includedItems, setIncludedItems] = useState<SubDepartment2[]>([]);
+  const [products, setProducts] = useState<Products[]>([]);
+  const [includedProductItems, setIncludedProductItems] = useState<any[]>([]);
+  const [isMandatoryChecked, setIsMandatoryChecked] = useState<number>(0);
   const {
     register,
     handleSubmit,
@@ -121,7 +127,7 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
     },
   });
   const location = useLocation();
-  // const navigate = useNavigate();
+
   const fetchComboOptions = async (comboOptionId: any) => {
     try {
       const response = await axios.get(
@@ -148,22 +154,19 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
       console.error("Error fetching combo options: ", error);
     }
   };
-  // const [includedItemsList, setIncludedItemsList] = useState([]);
+
 
   useEffect(() => {
     if (location && location.search) {
       const params = new URLSearchParams(location.search);
       const id = params.get("Id");
       if (id) {
-        // setProductId(id);
         fetchComboOptions(id);
       }
     }
-  }, [location,loading]);
+  }, [location, loading, comboLoading]);
 
-  const UserToken_Global = localStorage.getItem("authToken");
-  const [subDepartments, setSubDepartments] = useState<SubDepartment[]>([]);
-  const [isMandatoryChecked, setIsMandatoryChecked] = useState<number>(0);
+
 
   // const handleMandatoryToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setIsMandatoryChecked(!e.target.checked);
@@ -202,7 +205,7 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
     }
   };
 
-  const [products, setProducts] = useState<Products[]>([]);
+
   // const [isDataBound, setIsDataBound] = useState(false);
 
   const GetAllActiveProductsListOfRestaurant = async () => {
@@ -236,9 +239,6 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
     }
   };
 
-  // const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-  const [comboProductId, setComboProductId] = useState<string | number>("");
-  const [includedItems, setIncludedItems] = useState<SubDepartment2[]>([]);
 
   const handleDepartmentChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -255,7 +255,6 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
       return;
     }
     // setSelectedDepartment(departmentId);
-
 
     try {
       const response = await axios.get(
@@ -332,7 +331,6 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
   };
 
   // const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
-  const [includedProductItems, setIncludedProductItems] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -489,6 +487,7 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
   const handleUpdate = async (payload: any) => {
 
     try {
+      setComboLoading(true);
       payload.includedItemsData = [...departmentData, ...transformedData];
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/combo/product/addupdate/option`,
@@ -528,7 +527,8 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
           transition: Bounce,
         });
       }
-    } catch (error) {
+    }
+    catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           if (error.response.status === 401) {
@@ -558,6 +558,9 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
           }
         }
       }
+    }
+    finally {
+      setComboLoading(false);
     }
   };
 
@@ -644,12 +647,12 @@ const AddedComboProduct: React.FC<AddedComboProductProps> = ({
                                     const payload = {
                                       defaultProductId: data[`defaultProductId-${combo.Id}`] || "0",
                                       id: combo.Id,
-                                      includedItemsData: [null], // Include your included items data here if needed
+                                      includedItemsData: [null], 
                                       isMandatory: data[`isMandatory-${combo.Id}`] ? 1 : 0,
                                       maxSelectionValue: data[`maxSelectionValue-${combo.Id}`] || "0",
                                       minSelectionValue: data[`minSelectionValue-${combo.Id}`] || 0,
                                       mode: 2,
-                                      optionName: data[`comboOptionName-${combo.Id}`],  // Ensure that this field is properly assigned
+                                      optionName: data[`comboOptionName-${combo.Id}`],
                                       productId: combo.ComboProductId,
                                       restaurantLoginId: 0,
                                     };

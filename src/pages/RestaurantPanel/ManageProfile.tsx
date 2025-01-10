@@ -1502,7 +1502,7 @@ const ManageProfile: React.FC = () => {
                                                                                                             Lunch Break
                                                                                                             <div id="lblLunchBreak_Sunday_RestaurantTiming_SoftwareSetting" style={{ color: 'red' }}>
                                                                                                                 {timingData.Friday.show
-                                                                                                                    ? ` ${timingData.Thursday.lunchFrom} to ${timingData.Thursday.lunchTo}`
+                                                                                                                    ? ` ${timingData.Friday.lunchFrom} to ${timingData.Friday.lunchTo}`
                                                                                                                     : ""}
                                                                                                             </div>
                                                                                                         </a>

@@ -4,6 +4,38 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 
+interface RestaurantSettings {
+  Id: number;
+  RestaurantLoginId: number;
+  AllowUserAppToPlaceTheDeliveryOrder: number;
+  MinimumCharge_Delivery: number;
+  AllowCashOnDelivery: number;
+  AutoAcceptPaidOrder_Delivery: number;
+  EstimatedTime_Delivery: number;
+  EstimatedTimeTypeId_Delivery: number;
+  SuggestedTip: number;
+  TipAmount_1: number;
+  TipAmount_2: number;
+  TipAmount_3: number;
+  AllowScheduleOrder: number;
+  RequirePaymentWhenPlacingOrder: number;
+  BannerColor: string;
+  MinOrderNumber: number;
+  MaxOrderNumber: number;
+  AllowUserAppToPlaceThePickupOrder: number;
+  AllowCashOnPickup: number;
+  AutoAcceptPaidOrder_Pickup: number;
+  EstimatedTime_Pickup: number;
+  EstimatedTimeTypeId_Pickup: number;
+  LogoImage: string;
+  SetProductViewType: number;
+  CreatedOn: string;  // Date in ISO string format
+  CreatedByLoginId: number;
+  UpdatedOn: string;  // Date in ISO string format
+  UpdatedByLoginId: number;
+}
+
+
 const ConfirmOrder: React.FC = () => {
 
   const [cartDetails, setCartDetails] = useState<any>(null);
@@ -21,6 +53,7 @@ const ConfirmOrder: React.FC = () => {
   const wpToken = localStorage.getItem("guest_wptoken");
   // const [orderTime, setOrderTime] = useState('');
   const [selectedOption, setSelectedOption] = useState<number>(0);
+  const [storeQR_SettingsData, setStoreQR_SettingData] = useState<RestaurantSettings | null>(null)
   // const [scheduleDate, setScheduleDate] = useState('');
   // const [scheduleTime, setScheduleTime] = useState('');
   const navigate = useNavigate();
@@ -40,6 +73,7 @@ const ConfirmOrder: React.FC = () => {
         const cartDetails = response.data.data.cartDetail;
         setCartDetails(response.data.data);
         setSelectedOption(cartDetails.IsScheduledOrder);
+        setStoreQR_SettingData(response.data.data.storeQR_SettingsData);
 
       } else {
         setError("Failed to fetch cart details");
@@ -94,6 +128,8 @@ const ConfirmOrder: React.FC = () => {
     setEmailError("");
     return true;
   };
+
+
 
   // Submit Order Function
   const submitOrder = async () => {
@@ -735,37 +771,37 @@ const ConfirmOrder: React.FC = () => {
                       <div className="input-box" id="tipamount_div_1_mobile">
                         <label>
                           <input
-                            type="radio"
+                            type="checkbox"
                             name="tip-radio-input-mobile"
                             className="tip-checkbox-mobile"
                             id="tip_checkbox_1_mobile"
-                            data-tip={5}
+                            // data-tip={storeQR_SettingsData?.TipAmount_1}
                           />
-                          <span id="TipAmount_1_Data_Mobile">5%</span>
+                          <span id="TipAmount_1_Data_Mobile">{storeQR_SettingsData?.TipAmount_1}%</span>
                         </label>
                       </div>
                       <div className="input-box" id="tipamount_div_2_mobile">
                         <label>
                           <input
-                            type="radio"
+                            type="checkbox"
                             name="tip-radio-input-mobile"
                             className="tip-checkbox-mobile"
                             id="tip_checkbox_2_mobile"
-                            data-tip={10}
+                            // data-tip={storeQR_SettingsData?.TipAmount_2}
                           />
-                          <span id="TipAmount_2_Data_Mobile">10%</span>
+                          <span id="TipAmount_2_Data_Mobile">{storeQR_SettingsData?.TipAmount_2}%</span>
                         </label>
                       </div>
                       <div className="input-box" id="tipamount_div_3_mobile">
                         <label>
                           <input
-                            type="radio"
+                            type="checkbox"
                             name="tip-radio-input-mobile"
                             className="tip-checkbox-mobile"
                             id="tip_checkbox_3_mobile"
-                            data-tip={15}
+                            // data-tip={storeQR_SettingsData?.TipAmount_3}
                           />
-                          <span id="TipAmount_3_Data_Mobile">15%</span>
+                          <span id="TipAmount_3_Data_Mobile">{storeQR_SettingsData?.TipAmount_3}%</span>
                         </label>
                       </div>
                     </div>

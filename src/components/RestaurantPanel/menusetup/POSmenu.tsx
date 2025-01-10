@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { Bounce, toast } from "react-toastify";
 
 interface Product {
   Id: number;
@@ -18,30 +19,30 @@ interface ApiResponse {
   };
 }
 type SubDepartment = {
-    Id: number;
-    Name: string;
+  Id: number;
+  Name: string;
 };
-  
+
 const POSmenu: React.FC = () => {
   const UserToken_Global = localStorage.getItem("authToken");
-
   const [products, setProducts] = useState<Product[]>([]);
-  const [subDepartmentProducts, setSubDepartmentProducts] = useState<Product[]>([]);
-
-  // State to hold sub-department data
-const [subDepartments, setSubDepartments] = useState<SubDepartment[]>([]);
-const [activeSubDepartment, setActiveSubDepartment] = useState<number | null>(null);
-const [activeSubDepartmentName, setActiveSubDepartmentName] = useState<string | null>("");
-
+  const [subDepartmentProducts, setSubDepartmentProducts] = useState<Product[]>(
+    []
+  );
+  const [subDepartments, setSubDepartments] = useState<SubDepartment[]>([]);
+  const [activeSubDepartment, setActiveSubDepartment] = useState<number | null>(
+    null
+  );
+  const [activeSubDepartmentName, setActiveSubDepartmentName] = useState<
+    string | null
+  >("");
 
   const fetchProducts = async () => {
-
     const apiUrl = `${
       import.meta.env.VITE_API_URL
     }api/pos/products/list/by/subdepartment?restaurantLoginId=${0}&departmentId=${activeSubDepartment}`;
     try {
       const response = await axios.get<ApiResponse>(apiUrl, {
-        //   params: { subDepartmentId },
         headers: {
           Authorization: `Bearer ${UserToken_Global}`,
           "Content-Type": "application/json",
@@ -53,11 +54,6 @@ const [activeSubDepartmentName, setActiveSubDepartmentName] = useState<string | 
         if (data.products && data.products.length > 0) {
           setProducts(data.products);
         } else {
-          // Swal.fire({
-          //   title: "Warning",
-          //   text: "No products found for this department!",
-          //   icon: "warning",
-          // });
           setProducts([]);
         }
       } else {
@@ -70,8 +66,7 @@ const [activeSubDepartmentName, setActiveSubDepartmentName] = useState<string | 
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-
-    } 
+    }
   };
 
   const opneColorPickerModal = () => {
@@ -83,124 +78,129 @@ const [activeSubDepartmentName, setActiveSubDepartmentName] = useState<string | 
     }
   };
 
+  const fetchSubDepartments = async () => {
+    const apiUrl = `${
+      import.meta.env.VITE_API_URL
+    }api/pos/departments/list?restaurantLoginId=${0}`;
+    try {
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${UserToken_Global}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-// Fetch the sub-departments from the API
-const fetchSubDepartments = async () => {
-  const apiUrl = `${
-    import.meta.env.VITE_API_URL
-  }api/pos/departments/list?restaurantLoginId=${0}`;
-  try {
-    const response = await axios.get(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${UserToken_Global}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.status === 200) {
-      const { subDepartments } = response.data.data; 
-      if (subDepartments && subDepartments.length > 0) {
-        setSubDepartments(subDepartments); 
-        setActiveSubDepartment(subDepartments[0].Id); 
-        setActiveSubDepartmentName(subDepartments[0].Name); 
-
+      if (response.status === 200) {
+        const { subDepartments } = response.data.data;
+        if (subDepartments && subDepartments.length > 0) {
+          setSubDepartments(subDepartments);
+          setActiveSubDepartment(subDepartments[0].Id);
+          setActiveSubDepartmentName(subDepartments[0].Name);
+        } else {
+          Swal.fire({
+            title: "Warning",
+            text: "No sub-departments found!",
+            icon: "warning",
+          });
+        }
       } else {
+        console.error("API Error:");
         Swal.fire({
-          title: "Warning",
-          text: "No sub-departments found!",
-          icon: "warning",
+          title: "Error",
+          text: response.data.message,
+          icon: "error",
         });
       }
-    } else {
-      console.error("API Error:");
-      Swal.fire({
-        title: "Error",
-        text: response.data.message,
-        icon: "error",
-      });
+    } catch (error) {
+      console.error("Error fetching sub-departments:", error);
     }
-  } catch (error) {
-    console.error("Error fetching sub-departments:", error);
-  }
-};
-// Fetch products
-const fetchMenuProducts = async () => {
-  try {
-    const apiUrl = `${import.meta.env.VITE_API_URL}api/pos/menu/setup/products/list/by/subdepartment?restaurantLoginId=${0}&departmentId=${activeSubDepartment}`;
-    const response = await axios.get<{ status: number; data: { products: Product[] } }>(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${UserToken_Global}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.data.status === 1) {
-      setSubDepartmentProducts(response.data.data.products || []);
-    } else {
-      Swal.fire({
-        title: "Error",
-        text: "Failed to fetch products.",
-        icon: "error",
+  };
+  const fetchMenuProducts = async () => {
+    try {
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL
+      }api/pos/menu/setup/products/list/by/subdepartment?restaurantLoginId=${0}&departmentId=${activeSubDepartment}`;
+      const response = await axios.get<{
+        status: number;
+        data: { products: Product[] };
+      }>(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${UserToken_Global}`,
+          "Content-Type": "application/json",
+        },
       });
+
+      if (response.data.status === 1) {
+        setSubDepartmentProducts(response.data.data.products || []);
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: "Failed to fetch products.",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.log("Error", error);
     }
-  } catch (error) {
-    // Swal.fire({
-    //   title: "Error",
-    //   text: "There was an error fetching the products.",
-    //   icon: "error",
-    // });
-  }
-};
+  };
 
-// Delete product
-const deleteProduct = async (Id: number) => {
-  try {
-    const apiUrl = `${import.meta.env.VITE_API_URL}api/pos/delete/product/pos/menu/setup?restaurantLoginId=${0}&Id=${Id}`;
-    const response = await axios.get<{ status: number; message: string }>(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${UserToken_Global}`,
-        "Content-Type": "application/json",
-      },
-    });
+  const deleteProduct = async (Id: number) => {
+    try {
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL
+      }api/pos/delete/product/pos/menu/setup?restaurantLoginId=${0}&Id=${Id}`;
+      const response = await axios.get<{ status: number; message: string }>(
+        apiUrl,
+        {
+          headers: {
+            Authorization: `Bearer ${UserToken_Global}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (response.data.status === 1) {
-      Swal.fire({
-        title: "Success",
-        text: response.data.message,
-        icon: "success",
-      });
-      fetchMenuProducts();
-    } else {
-      Swal.fire({
-        title: "Error",
-        text: response.data.message,
-        icon: "error",
-      });
+      if (response.data.status === 1) {
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+        fetchMenuProducts();
+      } else {
+        toast.error(response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+      }
+    } catch (error) {
+      console.log("Error: ", error);
     }
-  } catch (error) {
-    Swal.fire({
-      title: "Error",
-      text: "There was an error deleting the product.",
-      icon: "error",
-    });
-  } 
-};
+  };
 
+  const handleSubDepartmentClick = (id: number, name: string) => {
+    setActiveSubDepartment(id);
+    setActiveSubDepartmentName(name);
+  };
 
-// Handle sub-department selection
-const handleSubDepartmentClick = (id: number, name: string) => {
-  setActiveSubDepartment(id);
-  setActiveSubDepartmentName(name);
-  // GetAndBindProductsListBySubdepartmentId(id, name); // Fetch products for the selected sub-department (if needed)
-};
-
-
-useEffect(() => {
+  useEffect(() => {
     fetchSubDepartments();
     fetchProducts();
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     fetchProducts();
     fetchMenuProducts();
   }, [activeSubDepartment]);
@@ -233,7 +233,7 @@ useEffect(() => {
                     </tr>
                   </thead>
                   <tbody id="BindProductListBySubdepartmentId_POSMenuSetup">
-                    {products.length >0? (
+                    {products.length > 0 ? (
                       products.map((product) => (
                         <tr
                           key={product.Id}
@@ -247,16 +247,22 @@ useEffect(() => {
                             ${product.SellingPrice}
                           </td>
                         </tr>
-                      ))):(
-                        <div className="items-center text-center font-bold text-red-600" >No Products to add</div>
-                      )
-                    }
+                      ))
+                    ) : (
+                      <div className="items-center text-center font-bold text-red-600">
+                        No Products to add
+                      </div>
+                    )}
                   </tbody>
                 </table>
               </div>
               <div className="pos-nav">
-                <nav>
-                  <div className="nav nav-tabs" id="nav-tab" role="tablist">
+                <div>
+                  <div
+                    className="nav nav-tabs !mb-0"
+                    id="nav-tab"
+                    role="tablist"
+                  >
                     <a
                       className="nav-item nav-link buttonTabClickCommonClass"
                       id="nav-home-tab"
@@ -294,7 +300,7 @@ useEffect(() => {
                       Fonts
                     </a>
                   </div>
-                </nav>
+                </div>
                 <div className="tab-content" id="nav-tabContent">
                   <div
                     className="tab-pane fade"
@@ -302,88 +308,69 @@ useEffect(() => {
                     role="tabpanel"
                     aria-labelledby="nav-home-tab"
                   >
-                    <div className="switch-1">
-                      <div className="row">
-                        <div className="col-md-6">
-                          <p>Setup Button</p>
-                        </div>
-                        <div className="col-md-6">
-                          <div>
-                            <label className="switch round_wraps">
-                              <input
-                                className="buttonSettingCommonClass"
-                                type="checkbox"
-                                id="SetupButton_POSMenuSetup_1"
-                                name="modifiyProductsRadioBtn"
-                                value="1"
-                              />
-                              <span className="slider round"></span>
-                            </label>
-                          </div>
-                        </div>
+                    <div className=" space-y-1 overflow-y-auto">
+                      {/* Setup Button */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">Setup Button</p>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            id="SetupButton_POSMenuSetup_1"
+                            name="modifiyProductsRadioBtn"
+                            value="1"
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                          <span className="absolute w-4 h-4 bg-white rounded-full transform peer-checked:translate-x-5 transition-transform"></span>
+                        </label>
                       </div>
-                    </div>
-                    <div className="switch-1">
-                      <div className="row">
-                        <div className="col-md-6">
-                          <p>Move Button</p>
-                        </div>
-                        <div className="col-md-6">
-                          <div>
-                            <label className="switch round_wraps">
-                              <input
-                                className="buttonSettingCommonClass"
-                                type="checkbox"
-                                id="SetupButton_POSMenuSetup_2"
-                                name="modifiyProductsRadioBtn"
-                                value="2"
-                              />
-                              <span className="slider round"></span>
-                            </label>
-                          </div>
-                        </div>
+
+                      {/* Move Button */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">Move Button</p>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            id="SetupButton_POSMenuSetup_2"
+                            name="modifiyProductsRadioBtn"
+                            value="2"
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                          <span className="absolute w-4 h-4 bg-white rounded-full transform peer-checked:translate-x-5 transition-transform"></span>
+                        </label>
                       </div>
-                    </div>
-                    <div className="switch-1">
-                      <div className="row">
-                        <div className="col-md-6">
-                          <p>Copy Button</p>
-                        </div>
-                        <div className="col-md-6">
-                          <div>
-                            <label className="switch round_wraps">
-                              <input
-                                className="buttonSettingCommonClass"
-                                type="checkbox"
-                                id="SetupButton_POSMenuSetup_3"
-                                name="modifiyProductsRadioBtn"
-                                value="3"
-                              />
-                              <span className="slider round"></span>
-                            </label>
-                          </div>
-                        </div>
+
+                      {/* Copy Button */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">Copy Button</p>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            id="SetupButton_POSMenuSetup_3"
+                            name="modifiyProductsRadioBtn"
+                            value="3"
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                          <span className="absolute w-4 h-4 bg-white rounded-full transform peer-checked:translate-x-5 transition-transform"></span>
+                        </label>
                       </div>
-                    </div>
-                    <div className="switch-1">
-                      <div className="row">
-                        <div className="col-md-6">
-                          <p>Copy Style</p>
-                        </div>
-                        <div className="col-md-6">
-                          <div>
-                            <label className="switch round_wraps">
-                              <input
-                                className="buttonSettingCommonClass"
-                                type="checkbox"
-                                id="SetupButton_POSMenuSetup_4"
-                                name="modifiyProductsRadioBtn"
-                                value="4"
-                              />
-                              <span className="slider round"></span>
-                            </label>
-                          </div>
-                        </div>
+
+                      {/* Copy Style */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">Copy Style</p>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            id="SetupButton_POSMenuSetup_4"
+                            name="modifiyProductsRadioBtn"
+                            value="4"
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                          <span className="absolute w-4 h-4 bg-white rounded-full transform peer-checked:translate-x-5 transition-transform"></span>
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -505,7 +492,7 @@ useEffect(() => {
                   aria-labelledby="pills-home-tab"
                 >
                   <div className="row ">
-                    <span className="" style={{width: "120px"}}>
+                    <span className="" style={{ width: "120px" }}>
                       <div
                         className="col "
                         style={{
@@ -546,14 +533,16 @@ useEffect(() => {
                           id={`ParentIdProduct_${product.Id}`}
                           pro-id={`${product.Id}`}
                           style={{
-                            textAlign: "center", 
+                            textAlign: "center",
                           }}
                         >
                           <span
                             title="Delete"
                             onClick={() =>
-                            //   console.log(`Delete Product ${product.Id}`)
-                             { deleteProduct(product.Id)}
+                              //   console.log(`Delete Product ${product.Id}`)
+                              {
+                                deleteProduct(product.Id);
+                              }
                             }
                             className="z-1"
                             style={{
@@ -620,29 +609,37 @@ useEffect(() => {
               </div>
               <div className="scrollable-container mt-2 overflow-x-scroll">
                 <ul
-                  className="nav nav-pills"
+                  className="nav nav-pills "
                   id="ListEvenSubdepartment_POSMenuSetup"
                   role="tablist"
                 >
-                    
                   {subDepartments.length > 0 &&
-                  subDepartments.map((department) => (
-                  <li className="nav-item" key={department.Id}>
-                    <a
-                      className={`nav-link subdepartmentCommonClass ${activeSubDepartment===department.Id?'active':''} `}
-                      id={`pills-home-tab_${department.Id}`}
-                      data-toggle="pill"
-                      href="javascript:;"
-                      onClick={()=>handleSubDepartmentClick(department.Id, department.Name)}
-                      role="tab"
-                      aria-controls="pills-home"
-                      title={department.Name}
-                      aria-selected="true"
-                    >
-                      {department.Name}
-                    </a>
-                        </li>
-                      ))}   
+                    subDepartments.map((department) => (
+                      <li className="nav-item !w-full" key={department.Id}>
+                        <a
+                          className={`overflow-x-hidden nav-link subdepartmentCommonClass ${
+                            activeSubDepartment === department.Id
+                              ? "active"
+                              : ""
+                          } `}
+                          id={`pills-home-tab_${department.Id}`}
+                          data-toggle="pill"
+                          href="javascript:;"
+                          onClick={() =>
+                            handleSubDepartmentClick(
+                              department.Id,
+                              department.Name
+                            )
+                          }
+                          role="tab"
+                          aria-controls="pills-home"
+                          title={department.Name}
+                          aria-selected="true"
+                        >
+                          {department.Name}
+                        </a>
+                      </li>
+                    ))}
                 </ul>
               </div>
             </div>
@@ -680,11 +677,7 @@ useEffect(() => {
                           placeholder="Dine In"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
-                        (Dine In)
-                      </label>
+                      <label className="col-6 col-form-label">(Dine In)</label>
                     </div>
                   </div>
                   <div className="col-2 text-right">
@@ -710,9 +703,7 @@ useEffect(() => {
                           placeholder="Take Away"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
+                      <label className="col-6 col-form-label">
                         (Take Away)
                       </label>
                     </div>
@@ -740,11 +731,7 @@ useEffect(() => {
                           placeholder="Tables"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
-                        (Tables)
-                      </label>
+                      <label className="col-6 col-form-label">(Tables)</label>
                     </div>
                   </div>
                   <div className="col-2 text-right">
@@ -770,11 +757,7 @@ useEffect(() => {
                           placeholder="Order no"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
-                        (Ordr no)
-                      </label>
+                      <label className="col-6 col-form-label">(Ordr no)</label>
                     </div>
                   </div>
                   <div className="col-2 text-right">
@@ -800,9 +783,7 @@ useEffect(() => {
                           placeholder="Park Sale"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
+                      <label className="col-6 col-form-label">
                         (Park Sale)
                       </label>
                     </div>
@@ -830,9 +811,7 @@ useEffect(() => {
                           placeholder="Banking Report"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
+                      <label className="col-6 col-form-label">
                         (Banking Report)
                       </label>
                     </div>
@@ -860,9 +839,7 @@ useEffect(() => {
                           placeholder="Customer Name"
                         />
                       </div>
-                      <label
-                        className="col-6 col-form-label"
-                      >
+                      <label className="col-6 col-form-label">
                         (Customer Name )
                       </label>
                     </div>
@@ -937,10 +914,7 @@ useEffect(() => {
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-              >
+              <button type="button" className="btn btn-primary">
                 Ok
               </button>
             </div>

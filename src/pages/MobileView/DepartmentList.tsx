@@ -17,6 +17,7 @@ const DepartmentList: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
   const wpToken = localStorage.getItem('guest_wptoken');
 
+  
   useEffect(() => {
     const fetchDepartments = async () => {
       try {

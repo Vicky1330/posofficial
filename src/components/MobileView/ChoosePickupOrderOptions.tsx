@@ -55,7 +55,9 @@ const ChoosePickupOrderOptions: React.FC = ({
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      window.location.href = '/';
+      // window.location.href = '/';
+      navigate('/');
+      
     }
     // navigate(-1);
   };

@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import axios from "axios";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
+import { Bounce, toast } from "react-toastify";
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: 'top-right',
-  iconColor: 'white',
-  customClass: {
-    popup: 'colored-toast',
-  },
-  showConfirmButton: false,
-  timer: 1500,
-  timerProgressBar: true,
-});
+// const Toast = Swal.mixin({
+//   toast: true,
+//   position: 'top-right',
+//   iconColor: 'white',
+//   customClass: {
+//     popup: 'colored-toast',
+//   },
+//   showConfirmButton: false,
+//   timer: 1500,
+//   timerProgressBar: true,
+// });
 
 interface SliderSettings {
   slidesToShow: number;
@@ -39,6 +40,7 @@ const RestaurantLogin: React.FC = () => {
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,7 +53,7 @@ const RestaurantLogin: React.FC = () => {
 
   const CheckLogin = async (): Promise<void> => {
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}api/restaurant/login`;
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/restaurant/login`;
       const response = await axios.post(
         apiUrl,
         {
@@ -68,26 +70,47 @@ const RestaurantLogin: React.FC = () => {
       if (response.status === 200 && response.data.status === 1) {
         const token = response.data.data.Token;
         localStorage.setItem("authToken", token);
-        window.location.href = "/Restaurant/Dashboard";
+        // window.location.href = "/Restaurant/Dashboard";
+        navigate("/Restaurant/Dashboard");
         // Show success toast
-        Toast.fire({
-          icon: 'success',
-          title: 'Login successful!',
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
         });
       } else {
         // Show error toast for failed login
-        Toast.fire({
-          icon: 'error',
-          title: 'Login failed. Please try again.',
+        toast.error(response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
         });
       }
     } catch (err) {
       // Show error toast for invalid credentials
-      Toast.fire({
-        icon: 'error',
-        title: 'Invalid email or password.',
+      toast.error("Invalid email or password.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
       });
-      console.error("Error during login:", err);
     }
   };
 

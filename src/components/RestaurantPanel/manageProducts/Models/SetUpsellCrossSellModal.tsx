@@ -41,8 +41,6 @@ const SetUpsellCrossSellModal: React.FC<SetUpsellCrossSellModalProps> = ({
         },
       });
 
-      console.log("API Response:", response.data);
-
       if (response.status === 200 && response.data.status === 1) {
         const linkingType =
           response.data.data.product_LinkingType.ProductLinkingTypeId || "0";
